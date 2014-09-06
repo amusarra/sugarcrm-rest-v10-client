@@ -246,7 +246,7 @@ public class OAuthSimpleClientTest {
 			
 			System.out.println("Try to request a protected resource: "
 					+ clientRequest.getLocationUri());
-			
+
 			resourceResponse = oAuthClient.resource(
 					clientRequest, OAuth.HttpMethod.POST,
 					OAuthResourceResponse.class);
