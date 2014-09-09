@@ -25,6 +25,7 @@
 package it.dontesta.sugarcrm.webservices.client;
 
 import it.dontesta.sugarcrm.webservices.client.model.Account;
+import it.dontesta.sugarcrm.webservices.client.model.Accounts;
 import it.dontesta.sugarcrm.webservices.client.model.Email;
 
 import java.io.IOException;
@@ -132,6 +133,7 @@ public class OAuthSimpleClientTest {
 
 			final String PROTECTED_ACCOUNTS_RESOURCE_URL = "/Accounts";
 			final String PROTECTED_ME_PREFERENCES_RESOURCE_URL = "/me/preferences?oauth_token=";
+			final String PROTECTED_METADATA = "/metadata?oauth_token=";
 
 			// Replace these with your own api key and secret
 			final String API_KEY = "antonio_musarra_blog";
@@ -198,7 +200,38 @@ public class OAuthSimpleClientTest {
 				System.err.println(resourceResponse.getBody());
 			}
 
+
+			clientRequest = new OAuthClientRequest.AuthenticationRequestBuilder(
+					getFullApiUrl() + PROTECTED_ACCOUNTS_RESOURCE_URL)
+					.setParameter(OAuth.OAUTH_TOKEN, oAuthResponse.getAccessToken())
+					.buildQueryMessage();
+
+			System.out.println("Try to request a protected resource: "
+					+ clientRequest.getLocationUri());
 			
+			resourceResponse = oAuthClient.resource(
+					clientRequest, OAuth.HttpMethod.GET,
+					OAuthResourceResponse.class);
+
+			if (resourceResponse.getResponseCode() == 200) {
+				System.out.println("Response is OK. Content of response: ");
+
+				ObjectMapper mapper = new ObjectMapper();
+				Accounts accounts = mapper.readValue(resourceResponse.getBody(), Accounts.class);
+
+				System.out.println("####### ACCOUNTS RESPONSE ########");
+				for (Account account : accounts.getAccounts()) {
+					System.out.println("Account Name: " + account.getName()
+							+ " {Account Id: "
+							+ account.getId()
+							+ "}");
+				}
+				System.out.println("####### END ACCOUNTS RESPONSE ########");
+			} else {
+				System.err.println("Response is KO with HTTP status code " + resourceResponse.getResponseCode());
+				System.err.println(resourceResponse.getBody());
+			}
+
 			clientRequest = new OAuthClientRequest.AuthenticationRequestBuilder(
 					getFullApiUrl() + PROTECTED_ME_PREFERENCES_RESOURCE_URL)
 					.setParameter(OAuth.OAUTH_TOKEN, oAuthResponse.getAccessToken())
